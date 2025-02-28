@@ -22,6 +22,7 @@ pipeline {
                  sh 'mvn clean package -DskipTest=true'
                  //mvn clean package -DskipTests=true
                  //mvn clean package -Dmaven.test.skip=true
+                 archive 'target/*.jar'
              }
 
           }
