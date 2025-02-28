@@ -9,7 +9,7 @@ pipeline {
           stage ('build'){
              // This is where Build for Eureka application happens
              steps {
-                 echo "Building Eureka Application"
+                 echo "Building Eureka Application-CNR"
              }
 
           }
