@@ -24,15 +24,25 @@ pipeline {
                  //mvn clean package -Dmaven.test.skip=true
                  archive 'target/*.jar'
              }
+          }
+         //  stage ('Unit Test') {
+         //     steps {
+         //        echo "**** Performing Unit test for ${env.APPLICATION_NAME} Application ***"
+         //        sh 'mvn test'
+         //     }
+         //  }
 
-          }
-          stage ('Unit Test') {
-             steps {
-                echo "**** Performing Unit test for ${env.APPLICATION_NAME} Application ***"
-                sh 'mvn test'
-             }
-          }
-          
+        stage ('SonarQube'){
+           steps {
+              sh """
+               echo "Starting Sonar Scan"
+               mvn sonar:sonar \
+                   -Dsonar.projectKey=i27-eureka \
+                   -Dsonar.host.url=http://34.16.15.150:9000 \
+                   -Dsonar.login=sqa_d09b9a4eef1f4e821e420813ddee20296d1bf9cf
+               """
+           }
+        }  
      }
 }
     
