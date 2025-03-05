@@ -28,7 +28,7 @@ pipeline {
          //  stage ('Unit Test') {
          //     steps {
          //        echo "**** Performing Unit test for ${env.APPLICATION_NAME} Application ***"
-         //        sh 'mvn test'
+         //        sh 'mvn test'  test
          //     }
          //  }
 
