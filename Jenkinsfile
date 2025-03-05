@@ -52,11 +52,13 @@ pipeline {
                 script { // i27-eureka-0.0.1-SNAPSHOT.jar
                 sh """
                  echo "Testing JAR Source: i27-${env.APPLICATION_NAME}.${env.POM_VERSION}.${env.POM_PACKAGING}"
-                 
+
                 """
 
               }
           }
+     }
+
      }
 
     
