@@ -12,8 +12,6 @@ pipeline {
      }
      environment {
          APPLICATION_NAME = "eureka"
-         POM_VERSION = readMavenPom().getVersion()
-         POM_PACKAGING = readMavenPom().getpackaging()
      }
 
      stages {
@@ -28,24 +26,13 @@ pipeline {
              }
 
           }
-         //  stage ('Unit Test') {
-         //     steps {
-         //        echo "**** Performing Unit test for ${env.APPLICATION_NAME} Application ***"
-         //        sh 'mvn test'
-         //     }
-         //  }
-
-          stage ('SonarQube'){
-            steps {
-               sh """
-               echo "Starting Sonar Scan"
-               mvn sonar:sonar \
-                   -Dsonar.projectKey=i27-eureka \
-                   -Dsonar.host.url=http://34.16.15.150:9000 \
-                   -Dsonar.login=sqa_a42c2667f41403658dddf268942357a60e963349
-               """    
-            }
+          stage ('Unit Test') {
+             steps {
+                echo "**** Performing Unit test for ${env.APPLICATION_NAME} Application ***"
+                sh 'mvn test'
+             }
           }
-
+          
      }
-}    
+}
+    
