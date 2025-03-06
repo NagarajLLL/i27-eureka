@@ -56,9 +56,12 @@ pipeline {
         } 
         stage ('BuildFormat') {
             steps {
-               script { // i27-eureka-0.0.1-SNAPSHOT.jar
+               script { 
+                   // Existing : i27-eureka-0.0.1-SNAPSHOT.jar
+                   // Destination : i27-eureka-buildnumber-branchname.package
                  sh """
                    echo "Testing JAR Source: i27-${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING}"
+                   echo "Testing JAr Destination Format: i27-${env.APPLICATION_NAME}-${currentBuild.number}-${BRANCH_NAME}.${env.POM_PACKAGING}"
                  """
                }
             }
