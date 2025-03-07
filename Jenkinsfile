@@ -66,6 +66,15 @@ pipeline {
                }
             }
         }
+        stage('Docker build') {
+            steps {
+                script{
+                    echo "****** Building Doker image *******"
+                    sh "docker build --no-cache --build-arg JAR_SOURCE=i27-${env.APPLICATION_NAME}-${currentBuild.number}-${BRANCH_NAME}.${env.POM_PACKAGING} -t sampleeureka:v1 ./.cicd/"
+                }
+            }
+        }
+       
      }
 }
     
