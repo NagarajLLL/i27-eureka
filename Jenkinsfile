@@ -70,7 +70,7 @@ pipeline {
             steps {
                 script{
                     echo "****** Building Doker image *******"
-                    sh "cp ${WORKSPACE}target/i27-${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} ./.cicd"
+                    sh "cp ${WORKSPACE}/target/i27-${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} ./.cicd"
                     sh "docker build --no-cache --build-arg JAR_SOURCE=i27-${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} -t sampleeureka:v1 ./.cicd/"
                 }
             }
