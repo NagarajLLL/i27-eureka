@@ -68,7 +68,7 @@ pipeline {
                }
             }
         }
-        stage('Docker build') {
+        stage('Docker build & push') {
             steps {
                 script {
                     echo "****** Building Doker image *******"
@@ -81,7 +81,20 @@ pipeline {
                 }
             }
         }
+        stage ('Deploy to dev env'){
+            steps {
+                echo "********* Deploying to Dev Env **************"
+                withCredentials([usernamePassword(credentialsId: 'john_docker_vm_passwd', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+                         // some block
+                         // we will communicate to the server
+                         script {
+                            sh "sshpass -p '$PASSWORD' ssh -o StrictHostKeyChecking=no '$USERNAME'@$dev_ip "docker_images""
+                         }
+
+               }
+            }
+        }
        
-     }
+    }
 }
     
