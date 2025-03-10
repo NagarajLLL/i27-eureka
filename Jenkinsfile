@@ -88,7 +88,7 @@ pipeline {
                          // some block
                          // we will communicate to the server
                          script {
-                            sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no '$USERNAME'@$dev_ip \"docker_images\""
+                            sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no '$USERNAME'@$dev_ip \"docker images\""
                          }
 
                }
