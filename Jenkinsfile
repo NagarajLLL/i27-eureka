@@ -148,6 +148,7 @@ def dockerDeploy(envDeploy, hostPort, contPort) {
                }  
     }
 
+}
 
 //For Eureka lets use below port numbers
 //COntainer port is 8761 but host port changes
