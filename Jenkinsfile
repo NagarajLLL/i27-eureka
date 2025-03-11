@@ -5,6 +5,43 @@ pipeline {
           label 'k8s-slave'
      }
 
+   // { choice(name: 'CHOICES', choices: ['one', 'two', 'three'], description: '') }.
+     parameters {
+        choice(name: 'scanOnly',
+           choices: 'no\nyes'
+           description: "This will scna the application"
+        
+        )
+        choice(name: 'buildOnly',
+           choices: 'no\nyes' //
+           description: 'This will only build the application'
+        )
+           choice(name: 'dockerPush',
+           choices: 'no\nyes' //
+           description: 'This will trigger the app build, docker build and docker push'
+        )
+          
+           choice(name: 'deployToDev',
+           choices: 'no\nyes' //
+           description: 'This will deploy the application to Dev Env'
+        )
+           choice(name: 'deployToTest',
+           choices: 'no\nyes' //
+           description: 'This will deploy the application to Test Env'
+        )
+
+           choice(name: 'deployToStage',
+           choices: 'no\nyes' //
+           description: 'This will deploy the application to Stage Env'
+        ) 
+
+           choice(name: 'deployToProd',
+           choices: 'no\nyes' //
+           description: 'This will deploy the application to Prod Env'  
+        )     
+        
+     }
+
      // tools configured in jenkins-master
      tools {
         maven 'Maven-3.8.8'
@@ -19,7 +56,16 @@ pipeline {
      }
 
      stages {
-          stage ('build'){
+          stage ('Build'){
+              when {
+                 anyOf {
+                     expression {
+                         params.dockerPush == 'yes'
+                         parmas.buildOnly == 'yes'
+                     }
+                 }
+
+              }
              // This is where Build for Eureka application happens
              steps {
                  echo "Building ${env.APPLICATION_NAME} Application"
@@ -37,6 +83,15 @@ pipeline {
          //  }
 
         stage ('SonarQube'){
+            when {
+                anyOf {
+                     expression {
+                         params.dockerPush == 'yes'
+                         parmas.buildOnly == 'yes'
+                         params.scanOnly == 'yes'
+                     }
+                 }
+            }
            steps {
                //COde Quality needs to be implemented in this stage
                //Before we execute or write the code, make suer sonarqube-sanner plugin is installed 
@@ -56,19 +111,26 @@ pipeline {
              
            }
         } 
-        stage ('BuildFormat') {
-            steps {
-               script { 
-                   // Existing : i27-eureka-0.0.1-SNAPSHOT.jar
-                   // Destination : i27-eureka-buildnumber-branchname.package
-                 sh """
-                   echo "Testing JAR Source: i27-${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING}"
-                   echo "Testing JAr Destination Format: i27-${env.APPLICATION_NAME}-${currentBuild.number}-${BRANCH_NAME}.${env.POM_PACKAGING}"
-                 """
-               }
-            }
-        }
+        // stage ('BuildFormat') {
+        //     steps {
+        //        script { 
+        //            // Existing : i27-eureka-0.0.1-SNAPSHOT.jar
+        //            // Destination : i27-eureka-buildnumber-branchname.package
+        //          sh """
+        //            echo "Testing JAR Source: i27-${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING}"
+        //            echo "Testing JAr Destination Format: i27-${env.APPLICATION_NAME}-${currentBuild.number}-${BRANCH_NAME}.${env.POM_PACKAGING}"
+        //          """
+        //        }
+        //     }
+        // }
         stage('Docker build & push') {
+            when {
+                anyOf {
+                    expression {
+                        params.dockerPush == 'yes'
+                    }
+                }
+            }
             steps {
                 script {
                     dockerBuildAndPush().call()
@@ -77,6 +139,11 @@ pipeline {
             }
         }
         stage ('Deploy to Dev Env'){
+            when {
+                expression {
+                    params.deployToDev == 'yes'
+                }
+            }
             steps {
                 script {
                     dockerDeploy('dev', '5761', '8761').call()
@@ -88,6 +155,11 @@ pipeline {
     
 
         stage ('Deploy to Test Env'){
+                when {
+                expression {
+                    params.deployToTest == 'yes'
+                }
+            }
             steps {
                 script {
                     dockerDeploy('tst', '6761', '8761').call()
@@ -98,6 +170,11 @@ pipeline {
         }
       
         stage ('Deploy to Stage Env'){
+                when {
+                expression {
+                    params.deployToStage == 'yes'
+                }
+            }
             steps {
                 script {
                     dockerDeploy('stg', '7761', '8761').call()
@@ -107,6 +184,11 @@ pipeline {
         }
 
         stage ('Deploy to Prod Env'){
+                when {
+                expression {
+                    params.deployToProd == 'yes'
+                }
+            }
             steps {
                 script {
                     dockerDeploy('prd', '8761', '8761').call()
