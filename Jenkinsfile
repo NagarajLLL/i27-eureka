@@ -102,11 +102,9 @@ pipeline {
                 script {
                     dockerDeploy('stg', '7761', '8761').call()
                 }
-
-                
             }
-
-        }    
+                
+        }
 
         stage ('Deploy to Prod Env'){
             steps {
@@ -117,7 +115,9 @@ pipeline {
             }
 
         }
+     }    
 
+}
 
 //Method for Docker build and Push
 def dockerBuildAndPush(){
