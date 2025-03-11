@@ -71,42 +71,88 @@ pipeline {
         stage('Docker build & push') {
             steps {
                 script {
-                    echo "****** Building Doker image *******"
-                    sh "cp ${WORKSPACE}/target/i27-${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} ./.cicd"
-                    sh "docker build --no-cache --build-arg JAR_SOURCE=i27-${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT} ./.cicd/"
-                    sh "docker login -u ${DOCKER_CREDS_USR} -p ${DOCKER_CREDS_PSW}"
-                    echo "********* Push Image to Docker regitry ***********"
-                    sh "docker push ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
+                    dockerBuldAndPush.call()
                 
                 }
             }
         }
-        stage ('Deploy to dev env'){
+        stage ('Deploy to Dev Env'){
             steps {
-                echo "********* Deploying to Dev Env **************"
+                script {
+                    dockerDeploy('dev', '5761', '8761').call()
+                }
+                
+
+               }
+            }
+    
+
+        stage ('Deploy to Test Env'){
+            steps {
+                dockerDeploy('tst', '6761', '8761').call()
+            }
+
+            }
+      
+        stage ('Deploy to Stage Env'){
+            steps {
+                dockerDeploy('stg', '7761', '8761').call()
+            }
+
+            }    
+
+        stage ('Deploy to Prod Env'){
+            steps {
+                dockerDeploy('prod', '8761', '8761').call()
+
+            }
+
+            }
+
+
+//Method for Docker build and Push
+def dockerBuildAndPush(){
+    return {
+        echo "****** Building Doker image *******"
+        sh "cp ${WORKSPACE}/target/i27-${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} ./.cicd"
+        sh "docker build --no-cache --build-arg JAR_SOURCE=i27-${env.APPLICATION_NAME}-${env.POM_VERSION}.${env.POM_PACKAGING} -t ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT} ./.cicd/"
+        sh "docker login -u ${DOCKER_CREDS_USR} -p ${DOCKER_CREDS_PSW}"
+        echo "********* Push Image to Docker regitry ***********"
+        sh "docker push ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
+    }
+}
+
+//Method for Docker Deployment as containers in different env's
+def dockerDeploy(envDeploy, hostPort, contPort) {
+    return {
+            echo "********* Deploying to $envDeploy Environment **************"
                 withCredentials([usernamePassword(credentialsId: 'john_docker_vm_passwd', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
                          // some block
                          // we will communicate to the server
                          script {
                             try {
                                 // Stop the container
-                                sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no '$USERNAME'@$dev_ip \"docker stop ${env.APPLICATION_NAME}-dev \""
+                                sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no '$USERNAME'@$dev_ip \"docker stop ${env.APPLICATION_NAME}-$envDeploy \""
 
                                 // remove the container
-                                sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no '$USERNAME'@$dev_ip \"docker rm ${env.APPLICATION_NAME}-dev \""
+                                sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no '$USERNAME'@$dev_ip \"docker rm ${env.APPLICATION_NAME}-$envDeploy \""
 
                             }
                             catch(err)
                             {
                                 echo "Error Caught: $err"
                             }
-                            sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no '$USERNAME'@$dev_ip \"docker container run -dit -p 8761:8761 --name ${env.APPLICATION_NAME}-dev ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT} \""
+                            sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no '$USERNAME'@$dev_ip \"docker container run -dit -p $hostPort:$contPort --name ${env.APPLICATION_NAME}-$envDeploy ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT} \""
                          }
 
-               }
-            }
-        }
-       
+               }  
     }
 }
+
+//For Eureka lets use below port numbers
+//COntainer port is 8761 but host port changes
+//dev:HostPort=5761
+//dev:HostPort=6761
+//dev:HostPort=7761
+//dev:HostPort=8761
     

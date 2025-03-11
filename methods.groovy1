@@ -1,0 +1,18 @@
+def test(name) {
+    return {
+        echo "Hello Mr $name"
+    }
+}
+pipeline {
+    agent any
+    stages {
+        stage ('build') {
+            steps {
+                script {
+                    //Need to invoke methods 
+                    test('siva').call()
+                }
+            }
+        }
+    }
+}
