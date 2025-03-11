@@ -152,7 +152,7 @@ def dockerDeploy(envDeploy, hostPort, contPort){
                         }
                         sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no '$USERNAME'@$dev_ip \"docker container run -dit -p  $hostPort:$contPort --name ${env.APPLICATION_NAME}-$envDeploy ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT} \""
                     }
-                
+            }
         }    
     }
 
