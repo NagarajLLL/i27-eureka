@@ -61,7 +61,7 @@ pipeline {
                  anyOf {
                      expression {
                          params.dockerPush == 'yes'
-                         parmas.buildOnly == 'yes'
+                         params.buildOnly == 'yes'
                      }
                  }
 
@@ -87,7 +87,7 @@ pipeline {
                 anyOf {
                      expression {
                          params.dockerPush == 'yes'
-                         parmas.buildOnly == 'yes'
+                         params.buildOnly == 'yes'
                          params.scanOnly == 'yes'
                      }
                  }
