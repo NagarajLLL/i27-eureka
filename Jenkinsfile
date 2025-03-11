@@ -111,7 +111,7 @@ pipeline {
         stage ('Deploy to Prod Env'){
             steps {
                 script {
-                    dockerDeploy('prod', '8761', '8761').call()
+                    dockerDeploy('prd', '8761', '8761').call()
                 }
 
             }
@@ -132,36 +132,36 @@ def dockerBuildAndPush(){
 }
 
 //Method for Docker Deployment as containers in different env's
-def dockerDeploy(envDeploy, hostPort, contPort) {
+def dockerDeploy(envDeploy, hostPort, contPort){
     return {
             echo "********* Deploying to $envDeploy Environment **************"
-                withCredentials([usernamePassword(credentialsId: 'john_docker_vm_passwd', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
-                         // some block
-                         // we will communicate to the server
-                         script {
-                            try {
-                                // Stop the container
-                                sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no '$USERNAME'@$dev_ip \"docker stop ${env.APPLICATION_NAME}-$envDeploy \""
+            withCredentials([usernamePassword(credentialsId: 'john_docker_vm_passwd', passwordVariable: 'PASSWORD', usernameVariable: 'USERNAME')]) {
+                    // some block
+                    // we will communicate to the server
+                    script {
+                        try {
+                             // Stop the container
+                            sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no '$USERNAME'@$dev_ip \"docker stop ${env.APPLICATION_NAME}-$envDeploy \""
 
-                                // remove the container
-                                sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no '$USERNAME'@$dev_ip \"docker rm ${env.APPLICATION_NAME}-$envDeploy \""
+                            // remove the container
+                            sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no '$USERNAME'@$dev_ip \"docker rm ${env.APPLICATION_NAME}-$envDeploy \""
 
-                            }
-                            catch(err)
-                            {
-                                echo "Error Caught: $err"
-                            }
-                            sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no '$USERNAME'@$dev_ip \"docker container run -dit -p $hostPort:$contPort --name ${env.APPLICATION_NAME}-$envDeploy ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT} \""
-                         }
-
-               }    
+                        }
+                        catch(err){
+                            echo "Error Caught: $err"
+                        }
+                        sh "sshpass -p '$PASSWORD' -v ssh -o StrictHostKeyChecking=no '$USERNAME'@$dev_ip \"docker container run -dit -p  $hostPort:$contPort --name ${env.APPLICATION_NAME}-$envDeploy ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT} \""
+                    }
+                
+        }    
     }
 
 }
 
-//For Eureka lets use below port numbers
-//COntainer port is 8761 but host port changes
-//dev:HostPort=5761
-//dev:HostPort=6761
-//dev:HostPort=7761
-//dev:HostPort=8761
+
+// For Eureka lets use below port numbers
+// Container port is 8761 but host port changes
+// dev:HostPort = 5761
+// tst:HostPort = 6761
+// stg:HostPort = 7761
+// prod:HostPort = 8761
