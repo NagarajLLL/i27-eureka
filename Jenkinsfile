@@ -146,4 +146,4 @@ def dockerDeploy(envDeploy, hostPort, contPort) {
                         }
 
                }  
-    
+    }
