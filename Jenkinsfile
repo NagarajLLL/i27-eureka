@@ -89,21 +89,30 @@ pipeline {
 
         stage ('Deploy to Test Env'){
             steps {
-                dockerDeploy('tst', '6761', '8761').call()
+                script {
+                    dockerDeploy('tst', '6761', '8761').call()
+                }
+                
             }
 
         }
       
         stage ('Deploy to Stage Env'){
             steps {
-                dockerDeploy('stg', '7761', '8761').call()
+                script {
+                    dockerDeploy('stg', '7761', '8761').call()
+                }
+
+                
             }
 
         }    
 
         stage ('Deploy to Prod Env'){
             steps {
-                dockerDeploy('prod', '8761', '8761').call()
+                script {
+                    dockerDeploy('prod', '8761', '8761').call()
+                }
 
             }
 
@@ -156,4 +165,3 @@ def dockerDeploy(envDeploy, hostPort, contPort) {
 //dev:HostPort=6761
 //dev:HostPort=7761
 //dev:HostPort=8761
-}
