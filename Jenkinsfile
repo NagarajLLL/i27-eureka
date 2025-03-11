@@ -104,7 +104,7 @@ pipeline {
             echo "********* Push Image to Docker registry ***********"
             sh "docker push ${env.DOCKER_HUB}/${env.APPLICATION_NAME}:${GIT_COMMIT}"
         }
-    }
+    
 
     // Method for Docker Deployment as containers in different env's
     def dockerDeploy(envDeploy, hostPort, contPort) {
@@ -123,4 +123,3 @@ pipeline {
             }
         }
     }
-}
